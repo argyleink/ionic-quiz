@@ -1,4 +1,4 @@
-export const PunkRock = [{
+export const Punk = [{
   "elementType": "labels",
   "stylers": [{
     "visibility": "off"

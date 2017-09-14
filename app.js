@@ -1,10 +1,10 @@
-const htmlStandards = require('reshape-standard')
-const cssStandards = require('spike-css-standards')
-const jsStandards = require('spike-js-standards')
-const pageId = require('spike-page-id')
-const sugarml = require('sugarml')
-const sugarss = require('sugarss')
-const env = process.env.SPIKE_ENV
+const htmlStandards   = require('reshape-standard')
+const cssStandards    = require('spike-css-standards')
+const jsStandards     = require('babel-preset-latest')
+const pageId          = require('spike-page-id')
+const sugarml         = require('sugarml')
+const sugarss         = require('sugarss')
+const env             = process.env.SPIKE_ENV
 
 module.exports = {
   devtool: 'source-map',
@@ -12,7 +12,6 @@ module.exports = {
   ignore: ['**/layout.sgr', '**/_*', '**/.*', 'readme.md', 'yarn.lock'],
   reshape: htmlStandards({
     parser: sugarml,
-    locals: (ctx) => { return { pageId: pageId(ctx), foo: 'bar' } },
     minify: env === 'production'
   }),
   postcss: cssStandards({
@@ -20,5 +19,13 @@ module.exports = {
     minify: env === 'production',
     warnForDuplicates: env !== 'production'
   }),
-  babel: jsStandards()
+  babel: {
+    presets: [
+      ["env", {
+        targets: {
+          browsers: ["chrome > 55"]
+        }
+      }]
+    ]
+  }
 }

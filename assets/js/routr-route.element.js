@@ -1,36 +1,12 @@
+import { fetchXML } from './utilities'
+
 export default class RoutrRoute extends HTMLElement {
   createdCallback() {
     this.shadow_root = this.attachShadow({mode: 'open'})
-    this.shadow_root.innerHTML = `
-      <style>
-        select {
-          position: absolute;
-          top: 0.5rem;
-          right: 0.5rem;
-          z-index: 1;
-          -webkit-appearance: none;
-          background: white;
-          border: none;
-          padding: 1rem 1.25rem;
-          box-shadow: 0 2px 4px hsla(0,0%,0%,0.3);
-          border-radius: 0.25rem;
-        }
-      </style>
-
-      <select multiple>
-        <option selected>N</option>
-        <option>6</option>
-        <option>Z</option>
-      </select>
-    `
+    this.getRoutes()
   }
 
-  attachedCallback() {
-    this.shadow_root
-      .querySelector('select')
-      .addEventListener('change', e => this.changed(e))
-  }
-
+  attachedCallback() {}
   detachedCallback() {}
   attributeChangedCallback(attr, oldVal, newVal) {}
 
@@ -44,8 +20,42 @@ export default class RoutrRoute extends HTMLElement {
     return Array.from(options).reduce((sum, option) => `${sum} ${option.value}`, '')
   }
 
-  render() {
+  async getRoutes() {
+    let xml = await fetchXML(`command=routeList&a=sf-muni`)
+    this.render(xml.getElementsByTagName('route'))
+  }
 
+  render(routes) {
+    this.shadow_root.innerHTML = `
+      <style>
+        select {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          z-index: 1;
+          -webkit-appearance: none;
+          background: white;
+          border: none;
+          padding: 11px 10px 9px 10px;
+          box-shadow: 0 2px 4px hsla(0,0%,0%,0.3);
+          border-radius: 2px;
+        }
+      </style>
+
+      <select size="1" multiple>
+        ${Array.from(routes).reduce((options, option) => 
+          `${options}
+           <option>${option.getAttribute('tag')}</option>`
+        , '<option selected disabled style="display:none">Route Picker</option>')}
+      </select>
+    `
+    this.listen()
+  }
+
+  listen() {
+    this.shadow_root
+      .querySelector('select')
+      .addEventListener('change', e => this.changed(e))
   }
 }
 

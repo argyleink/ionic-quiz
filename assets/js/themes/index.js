@@ -1,11 +1,9 @@
-// import { GoogleMaps } from './googlemaps'
-import { Light }      from './light'
-import { Dark }       from './dark'
-import { PunkRock }   from './punkrock'
+import { Light }  from './light'
+import { Dark }   from './dark'
+import { Punk }   from './punk'
 
 export {
-  // GoogleMaps,
   Light,
   Dark,
-  PunkRock
+  Punk
 }

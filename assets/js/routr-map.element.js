@@ -1,4 +1,5 @@
-import * as Themes from './themes/index'
+import * as Themes  from './themes/index'
+import { fetchXML } from './utilities'
 
 export default class RoutrMap extends HTMLElement {
   createdCallback() {
@@ -16,20 +17,17 @@ export default class RoutrMap extends HTMLElement {
   }
 
   attachedCallback() {
-    let mapThemes = 
-
     this.map = new google.maps.Map(this.shadow_root.querySelector('#map'), {
-      zoom: 8,
+      zoom:               13,
+      fullscreenControl:  false,
+      streetViewControl:  false,
       center: {
-        lat: -34.397, 
-        lng: 150.644
+        lat: 37.7680445, 
+        lng: -122.439697
       },
       mapTypeControlOptions: {
         mapTypeIds: Object.keys(Themes)
       },
-      // mapTypeControl:     false,
-      fullscreenControl:  false,
-      streetViewControl:  false
     }) 
 
     Object.keys(Themes).map(theme => {
@@ -46,7 +44,7 @@ export default class RoutrMap extends HTMLElement {
   attributeChangedCallback(attr, oldVal, newVal) {
     switch (attr) {
       case 'route':
-        this.updateRoutes(
+        this.getBusLocations(
           newVal
             .split(" ")
             .splice(1, newVal.length)
@@ -58,8 +56,9 @@ export default class RoutrMap extends HTMLElement {
     }
   }
 
-  updateRoutes(routes) {
-    console.log(routes)
+  async getBusLocations(routes) {
+    let xml = await fetchXML(`command=vehicleLocations&a=sf-muni&r=${routes[0]}&t=${Date.now()}`)
+    console.log(xml.getElementsByTagName('vehicle'))
   }
 
   updateTheme(theme) {
