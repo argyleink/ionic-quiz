@@ -57,8 +57,12 @@ export default class RoutrMap extends HTMLElement {
   }
 
   async getBusLocations(routes) {
-    let xml = await fetchXML(`command=vehicleLocations&a=sf-muni&r=${routes[0]}&t=${Date.now()}`)
-    console.log(xml.getElementsByTagName('vehicle'))
+    let xml = await Promise.all(
+      routes.map(async route => 
+        await fetchXML(`command=vehicleLocations&a=sf-muni&r=${route}&t=${Date.now()}`)))
+
+    // console.log(xml.getElementsByTagName('vehicle'))
+    console.log(xml)
   }
 
   updateTheme(theme) {
