@@ -1,0 +1,20 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='description' content='')
+    meta(name='author' content='argyleink')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+
+    block(name='title')
+      title Routr
+
+    link(rel='stylesheet' href='css/index.css')
+
+  body
+    block(name='content')
+
+    block(name='javascript')
+      script(src='js/main.js' defer)
+      script(src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA39ztdV6iddYljplQFO7yqZaVYGzBgBKs&callback=init_map" defer)

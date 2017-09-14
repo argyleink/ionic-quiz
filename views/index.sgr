@@ -1,0 +1,5 @@
+extends(src='layout.sgr')
+  block(name='content')
+    //- routr-map
+    routr-theme_picker
+    routr-route_picker
