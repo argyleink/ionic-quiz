@@ -1,1 +1,1 @@
-export let GoogleMaps = []
+export const GoogleMaps = [{}]

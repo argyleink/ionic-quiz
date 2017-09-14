@@ -5,8 +5,8 @@ export default class RoutrRoute extends HTMLElement {
       <style>
         select {
           position: absolute;
-          bottom: 1rem;
-          left: 1rem;
+          top: 0.5rem;
+          right: 0.5rem;
           z-index: 1;
           -webkit-appearance: none;
           background: white;
@@ -42,6 +42,10 @@ export default class RoutrRoute extends HTMLElement {
 
   convertOptionsToString(options) {
     return Array.from(options).reduce((sum, option) => `${sum} ${option.value}`, '')
+  }
+
+  render() {
+
   }
 }
 

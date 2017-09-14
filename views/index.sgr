@@ -1,5 +1,4 @@
 extends(src='layout.sgr')
   block(name='content')
     //- routr-map (appended by maps loaded callback)
-    routr-theme
     routr-route
