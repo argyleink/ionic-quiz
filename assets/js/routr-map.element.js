@@ -22,12 +22,35 @@ export default class RoutrMap extends HTMLElement {
       },
       mapTypeControl:     false,
       fullscreenControl:  false,
-      streetViewControl:  false
+      streetViewControl:  false,
+      zoomControl:        false
     })  
   }
 
   detachedCallback() {}
-  attributeChangedCallback(attr, oldVal, newVal) {}
+
+  attributeChangedCallback(attr, oldVal, newVal) {
+    switch (attr) {
+      case 'route':
+        this.updateRoutes(
+          newVal
+            .split(" ")
+            .splice(1, newVal.length)
+        )
+        break;
+      case 'theme':
+        this.updateTheme(newVal)
+        break;
+    }
+  }
+
+  updateRoutes(routes) {
+    console.log(routes)
+  }
+
+  updateTheme(theme) {
+    console.log(theme)
+  }
 }
 
 document.registerElement('routr-map', RoutrMap)
