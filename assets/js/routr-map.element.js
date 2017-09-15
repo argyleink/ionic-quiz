@@ -23,6 +23,7 @@ export default class RoutrMap extends HTMLElement {
       fullscreenControl:  false,
       streetViewControl:  false,
       zoomControl:        false,
+      gestureHandling:    'greedy',
       center: {
         lat: 37.7680445, 
         lng: -122.439697
@@ -110,7 +111,14 @@ export default class RoutrMap extends HTMLElement {
             position:   { lat, lng },
             map:        this.map,
             label:      route,
-            animation:  google.maps.Animation.DROP
+            animation:  google.maps.Animation.DROP,
+            icon: {
+              path:         google.maps.SymbolPath.CIRCLE,
+              scale:        10,
+              fillColor:    '#0af',
+              fillOpacity:  0.7,
+              strokeWeight: 0
+            }
           }))
         }, i * (500 / vehicles.length))
       ))
