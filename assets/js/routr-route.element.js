@@ -19,7 +19,7 @@ export default class RoutrRoute extends HTMLElement {
         }
       </style>
 
-      <select multiple>
+      <select size="10" multiple>
         <option selected disabled style="display:none">Loading Routes...</option>
       </select>
     `
