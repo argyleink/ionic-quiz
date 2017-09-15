@@ -3,8 +3,9 @@ import { fetchXML } from './utilities'
 
 export default class RoutrMap extends HTMLElement {
   createdCallback() {
-    this.shadow_root = this.attachShadow({mode: 'open'})
-    this.shadow_root.innerHTML = `
+    // shadow root killed animations =(
+    // this.shadow_root = this.attachShadow({mode: 'open'})
+    this.innerHTML = `
       <style>
         #map {
           display: block;
@@ -17,10 +18,11 @@ export default class RoutrMap extends HTMLElement {
   }
 
   attachedCallback() {
-    this.map = new google.maps.Map(this.shadow_root.querySelector('#map'), {
+    this.map = new google.maps.Map(this.querySelector('#map'), {
       zoom:               13,
       fullscreenControl:  false,
       streetViewControl:  false,
+      zoomControl:        false,
       center: {
         lat: 37.7680445, 
         lng: -122.439697
@@ -33,10 +35,14 @@ export default class RoutrMap extends HTMLElement {
     Object.keys(Themes).map(theme => {
       this.map.mapTypes.set(
         theme, 
-        new google.maps.StyledMapType(Themes[theme], 
-        {name:theme})
-      )
-    })
+        new google.maps.StyledMapType(Themes[theme], {name:theme})
+      )})
+
+    this.markers = []
+
+    setInterval(() => 
+      this.getBusLocations(this.selected_routes)
+    , 15000)
   }
 
   detachedCallback() {}
@@ -44,29 +50,77 @@ export default class RoutrMap extends HTMLElement {
   attributeChangedCallback(attr, oldVal, newVal) {
     switch (attr) {
       case 'route':
-        this.getBusLocations(
-          newVal
-            .split(" ")
-            .splice(1, newVal.length)
-        )
-        break;
+        this.getBusLocations(newVal.split(","))
+        break
       case 'theme':
         this.updateTheme(newVal)
-        break;
+        break
     }
   }
 
   async getBusLocations(routes) {
-    let xml = await Promise.all(
-      routes.map(async route => 
-        await fetchXML(`command=vehicleLocations&a=sf-muni&r=${route}&t=${Date.now()}`)))
+    if (!routes) return
 
-    // console.log(xml.getElementsByTagName('vehicle'))
-    console.log(xml)
+    // stash routes for interval
+    this.selected_routes = routes
+
+    // async fetch vehicles for supplied routes
+    let xmls = await Promise.all(
+      routes.map(route => 
+        fetchXML(`command=vehicleLocations&a=sf-muni&r=${route}&t=${this.getLastTime()}`)))
+    
+    // stash time of last fetch for api, per docs request
+    this.last_call_time = xmls[xmls.length - 1]
+      .getElementsByTagName('lastTime')[0]
+      .getAttribute('time')
+
+    // filter results to routes with vehicles
+    let routesWithVehicles = xmls.filter(xml => xml.children[0].children.length >= 2)
+
+    // delete markers, we'll likely be drawing a whole new set on the map anyway
+    // or showing no results
+    this.deleteMarkers()
+
+    // if we have some vehicles, draw them to the map else remove everything else
+    if (routesWithVehicles.length) 
+      this.makeMarkers(routesWithVehicles)
+  }
+
+  getLastTime() {
+    return this.last_call_time ? this.last_call_time : 0
   }
 
   updateTheme(theme) {
     this.map.setMapTypeId(theme)
+  }
+
+  makeMarkers(routesVehicles) {
+    routesVehicles
+      .map(route => route.getElementsByTagName('vehicle'))          // map each route to vehicles
+      .map(vehicles => Array.from(vehicles).map(vehicle => ({       // map vehicles HTMLCollection items to objects
+        lat:          parseFloat(vehicle.getAttribute('lat')),
+        lng:          parseFloat(vehicle.getAttribute('lon')),
+        heading:      vehicle.getAttribute('heading'),
+        predictable:  vehicle.getAttribute('predictable'),
+        route:        vehicle.getAttribute('routeTag')
+      })))
+      .forEach(vehicles => vehicles.forEach(({lat,lng,route}, i) => // map objects to markers
+        window.setTimeout(() => {
+          this.markers.push(new google.maps.Marker({
+            position:   { lat, lng },
+            map:        this.map,
+            label:      route,
+            animation:  google.maps.Animation.DROP
+          }))
+        }, i * (500 / vehicles.length))
+      ))
+  }
+
+  deleteMarkers() {
+    if (!this.markers.length) return
+
+    this.markers.forEach(marker => marker.setMap(null))
+    this.markers = []
   }
 }
 
